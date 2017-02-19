@@ -25,6 +25,14 @@ struct Point {
 	float g;
 	float b;
 
+	//Default constructor
+	Point() {
+		x = 0.0;
+		y = 0.0;
+		r = 0.0;
+		g = 0.0;
+		b = 0.0;
+	}
 	// A constructor for point
 	Point(float x, float y, float r, float g, float b) {
 		this->x = x;
@@ -38,21 +46,33 @@ struct Point {
 //A square data structure
 struct Square {
 	//Origin of square, top left
-	float x;
-	float y;
+	Point topleft;
+	Point topright;
+	Point botleft;
+	Point botright;
+	//float size; //size of squares
 
-
+	Square(Point topleft, Point topright, Point botleft, Point botright) {
+		this->topleft = topleft;
+		this->topright = topright;
+		this->botleft = botleft;
+		this->botright = botright;
+	}
 
 };
 
 // A "Double Ended QUEue" to store points 
 deque<Point> points;
+deque<Square> squares;
 
 // Variables to store current color, initialize to black
 float red = 0.0, green = 0.0, blue = 0.0;
 
 // Store the width and height of the window
 int width = 640, height = 640;
+
+//Default size of squares
+//float s = 0.1f;
 
 //-------------------------------------------------------
 // A function to draw the scene
@@ -77,7 +97,7 @@ void appDrawScene() {
 	// Draw a point at the bottom-right
 	glBegin(GL_POINTS);
 
-	glVertex2f(-0.8, -0.8);
+	glVertex2f(-0.8f, -0.8f);
 
 	glEnd();
 
@@ -93,6 +113,27 @@ void appDrawScene() {
 
 		// Draw the vertex in the right position
 		glVertex2f(points[i].x, points[i].y);
+
+		glEnd();
+	}
+
+	//Draw all the square stored in the double-ended queue
+	for (int i = 0; i < squares.size(); i++) {
+		glColor3f(squares[i].topleft.r, squares[i].topleft.g, squares[i].topleft.b);
+
+		glBegin(GL_LINES);
+
+		glVertex2f(squares[i].topleft.x, squares[i].topleft.y);
+		glVertex2f(squares[i].topright.x, squares[i].topright.y);
+
+		glVertex2f(squares[i].topright.x, squares[i].topright.y);
+		glVertex2f(squares[i].botright.x, squares[i].botright.y);
+
+		glVertex2f(squares[i].botright.x, squares[i].botright.y);
+		glVertex2f(squares[i].botleft.x, squares[i].botleft.y);
+
+		glVertex2f(squares[i].botleft.x, squares[i].botleft.y);
+		glVertex2f(squares[i].topleft.x, squares[i].topleft.y);
 
 		glEnd();
 	}
@@ -184,6 +225,14 @@ void appMouseFunc(int b, int s, int x, int y) {
 
 	windowToScene(mx, my);
 
+	//Use mouse location as top right point, use that info to get rest of points
+	Point mtl = Point(mx, my, red, green, blue);
+	Point mtr = Point(mx + 0.1, my, red, green, blue);
+	Point mbl = Point(mx, my - 0.1, red, green, blue);
+	Point mbr = Point(mx + 0.1, my - 0.1, red, green, blue);
+
+	squares.push_front(Square(mtl, mtr, mbl, mbr));
+
 	// Add a point with with coordinates matching the
 	// current mouse position, and the current color values
     //points.push_front(Point(mx, my, red, green, blue));
@@ -208,7 +257,7 @@ void appMotionFunc(int x, int y) {
 
 	// Similar behavior to click handler. This function
 	// allows us to paint free hand with the mouse.
-	points.push_front(Point(mx, my, red, green, blue));
+	//points.push_front(Point(mx, my, red, green, blue));
 
 	// Again, we redraw the scene
 	glutPostRedisplay();
@@ -224,9 +273,10 @@ void appMotionFunc(int x, int y) {
 void appKeyboardFunc(unsigned char key, int x, int y) {
 	// Define what should happen for a given key press 
 	switch (key) {
-		// Space was pressed. Erase all points
+		// Space was pressed. Erase all points and squares
 	case ' ':
 		points.clear();
+		squares.clear();
 		break;
 
 		// Escape was pressed. Quit the program
