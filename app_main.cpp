@@ -13,6 +13,8 @@
 using namespace std;
 
 // Some global variables to maintain state
+// Variables to store current color, initialize to black
+float red = 0.0, green = 0.0, blue = 0.0;
 
 // A point data structure
 struct Point {
@@ -50,13 +52,13 @@ struct Square {
 	Point topright;
 	Point botleft;
 	Point botright;
-	//float size; //size of squares
+	float length;
 
-	Square(Point topleft, Point topright, Point botleft, Point botright) {
+	Square(Point topleft, float length){
 		this->topleft = topleft;
-		this->topright = topright;
-		this->botleft = botleft;
-		this->botright = botright;
+		this->topright = Point(topleft.x + length, topleft.y, red, green, blue);
+		this->botleft = Point(topleft.x, topleft.y - length, red, green, blue);
+		this->botright = Point(topleft.x + length, topleft.y - length, red, green, blue);
 	}
 
 };
@@ -65,14 +67,13 @@ struct Square {
 deque<Point> points;
 deque<Square> squares;
 
-// Variables to store current color, initialize to black
-float red = 0.0, green = 0.0, blue = 0.0;
+
 
 // Store the width and height of the window
 int width = 640, height = 640;
 
 //Default size of squares
-//float s = 0.1f;
+float length = (float)0.1;
 
 //-------------------------------------------------------
 // A function to draw the scene
@@ -124,8 +125,18 @@ void appDrawScene() {
 		glBegin(GL_LINES);
 
 		glVertex2f(squares[i].topleft.x, squares[i].topleft.y);
-		glVertex2f(squares[i].topright.x, squares[i].topright.y);
+		glVertex2f(squares[i].topleft.x + length, squares[i].topleft.y);
 
+		glVertex2f(squares[i].topleft.x + length, squares[i].topleft.y);
+		glVertex2f(squares[i].topleft.x + length, squares[i].topleft.y - length);
+
+		glVertex2f(squares[i].topleft.x + length, squares[i].topleft.y - length);
+		glVertex2f(squares[i].topleft.x, squares[i].topleft.y - length);
+
+		glVertex2f(squares[i].topleft.x, squares[i].topleft.y - length);
+		glVertex2f(squares[i].topleft.x, squares[i].topleft.y);
+		//	glVertex2f(squares[i].topright.x, squares[i].topright.y);
+/*
 		glVertex2f(squares[i].topright.x, squares[i].topright.y);
 		glVertex2f(squares[i].botright.x, squares[i].botright.y);
 
@@ -134,7 +145,7 @@ void appDrawScene() {
 
 		glVertex2f(squares[i].botleft.x, squares[i].botleft.y);
 		glVertex2f(squares[i].topleft.x, squares[i].topleft.y);
-
+*/
 		glEnd();
 	}
 
@@ -227,11 +238,11 @@ void appMouseFunc(int b, int s, int x, int y) {
 
 	//Use mouse location as top right point, use that info to get rest of points
 	Point mtl = Point(mx, my, red, green, blue);
-	Point mtr = Point(mx + 0.1, my, red, green, blue);
-	Point mbl = Point(mx, my - 0.1, red, green, blue);
-	Point mbr = Point(mx + 0.1, my - 0.1, red, green, blue);
+	//Point mtr = Point(mx + length, my, red, green, blue);
+	//Point mbl = Point(mx, my - length, red, green, blue);
+	//Point mbr = Point(mx + length, my - length, red, green, blue);
 
-	squares.push_front(Square(mtl, mtr, mbl, mbr));
+	squares.push_front(Square(mtl, length));
 
 	// Add a point with with coordinates matching the
 	// current mouse position, and the current color values
@@ -285,12 +296,11 @@ void appKeyboardFunc(unsigned char key, int x, int y) {
 		break;
 
 		// The "r" key was pressed. Set global color to red
-	case 'r':
+	/*case 'r':
 		red = 1.0;
 		green = 0.0;
 		blue = 0.0;
 		break;
-
 		// The "g" key was pressed. Set global color to green
 	case 'g':
 		red = 0.0;
@@ -304,7 +314,7 @@ void appKeyboardFunc(unsigned char key, int x, int y) {
 		green = 0.0;
 		blue = 1.0;
 		break;
-
+		*/
 		// The "k" key was pressed. Set global color to black
 	case 'k':
 		red = 0.0;
@@ -318,8 +328,44 @@ void appKeyboardFunc(unsigned char key, int x, int y) {
 		green = 1.0;
 		blue = 1.0;
 		break;
-	}
 
+	case 'r':		//changes all the colors of the square to red
+		for (int i = 0; i < squares.size(); i++) {
+			squares[i].topleft.r = 1.0;
+			squares[i].topleft.g = 0.0;
+			squares[i].topleft.b = 0.0;
+		}
+		break;
+
+	case 'g':		//changes all the colors of the square to red
+		for (int i = 0; i < squares.size(); i++) {
+			squares[i].topleft.r = 0.0;
+			squares[i].topleft.g = 1.0;
+			squares[i].topleft.b = 0.0;
+		}
+		break;
+
+	case 'b':		//changes all the colors of the square to red
+		for (int i = 0; i < squares.size(); i++) {
+			squares[i].topleft.r = 0.0;
+			squares[i].topleft.g = 0.0;
+			squares[i].topleft.b = 1.0;
+		}
+		break;
+
+	case 'i':		//increases size of squares
+		for (int i = 0; i < squares.size(); i++) {
+			length += 0.001;
+		}
+		break;
+
+	case 'd':		//increases size of squares
+		for (int i = 0; i < squares.size(); i++) {
+			length -= 0.001;
+		}
+		break;
+
+	}
 	// After all the state changes, redraw the scene
 	glutPostRedisplay();
 }
