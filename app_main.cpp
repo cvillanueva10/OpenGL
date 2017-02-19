@@ -35,6 +35,16 @@ struct Point {
 	}
 };
 
+//A square data structure
+struct Square {
+	//Origin of square, top left
+	float x;
+	float y;
+
+
+
+};
+
 // A "Double Ended QUEue" to store points 
 deque<Point> points;
 
@@ -176,7 +186,7 @@ void appMouseFunc(int b, int s, int x, int y) {
 
 	// Add a point with with coordinates matching the
 	// current mouse position, and the current color values
-    points.push_front(Point(mx, my, red, green, blue));
+    //points.push_front(Point(mx, my, red, green, blue));
 
 	// Redraw the scene by calling appDrawScene above
 	// so that the point we added above will get painted
