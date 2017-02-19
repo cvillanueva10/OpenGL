@@ -52,13 +52,12 @@ struct Square {
 	Point topright;
 	Point botleft;
 	Point botright;
-	float length;
 
-	Square(Point topleft, float length){
+	Square(Point topleft, Point topright, Point botleft, Point botright){
 		this->topleft = topleft;
-		this->topright = Point(topleft.x + length, topleft.y, red, green, blue);
-		this->botleft = Point(topleft.x, topleft.y - length, red, green, blue);
-		this->botright = Point(topleft.x + length, topleft.y - length, red, green, blue);
+		this->topright = topright;
+		this->botleft = botleft;
+		this->botright = botright;
 	}
 
 };
@@ -125,27 +124,17 @@ void appDrawScene() {
 		glBegin(GL_LINES);
 
 		glVertex2f(squares[i].topleft.x, squares[i].topleft.y);
-		glVertex2f(squares[i].topleft.x + length, squares[i].topleft.y);
+		glVertex2f(squares[i].topright.x + length, squares[i].topright.y);
 
-		glVertex2f(squares[i].topleft.x + length, squares[i].topleft.y);
-		glVertex2f(squares[i].topleft.x + length, squares[i].topleft.y - length);
+		glVertex2f(squares[i].topright.x + length, squares[i].topright.y);
+		glVertex2f(squares[i].botright.x + length, squares[i].botright.y - length);
 
-		glVertex2f(squares[i].topleft.x + length, squares[i].topleft.y - length);
-		glVertex2f(squares[i].topleft.x, squares[i].topleft.y - length);
+		glVertex2f(squares[i].botright.x + length, squares[i].botright.y - length);
+		glVertex2f(squares[i].botleft.x, squares[i].botleft.y - length);
 
-		glVertex2f(squares[i].topleft.x, squares[i].topleft.y - length);
+		glVertex2f(squares[i].botleft.x, squares[i].botleft.y - length);
 		glVertex2f(squares[i].topleft.x, squares[i].topleft.y);
-		//	glVertex2f(squares[i].topright.x, squares[i].topright.y);
-/*
-		glVertex2f(squares[i].topright.x, squares[i].topright.y);
-		glVertex2f(squares[i].botright.x, squares[i].botright.y);
 
-		glVertex2f(squares[i].botright.x, squares[i].botright.y);
-		glVertex2f(squares[i].botleft.x, squares[i].botleft.y);
-
-		glVertex2f(squares[i].botleft.x, squares[i].botleft.y);
-		glVertex2f(squares[i].topleft.x, squares[i].topleft.y);
-*/
 		glEnd();
 	}
 
@@ -238,11 +227,11 @@ void appMouseFunc(int b, int s, int x, int y) {
 
 	//Use mouse location as top right point, use that info to get rest of points
 	Point mtl = Point(mx, my, red, green, blue);
-	//Point mtr = Point(mx + length, my, red, green, blue);
-	//Point mbl = Point(mx, my - length, red, green, blue);
-	//Point mbr = Point(mx + length, my - length, red, green, blue);
+	Point mtr = Point(mx + length, my, red, green, blue);
+	Point mbl = Point(mx, my - length, red, green, blue);
+	Point mbr = Point(mx + length, my - length, red, green, blue);
 
-	squares.push_front(Square(mtl, length));
+	squares.push_front(Square(mtl, mtr, mbl, mbr));
 
 	// Add a point with with coordinates matching the
 	// current mouse position, and the current color values
@@ -329,7 +318,7 @@ void appKeyboardFunc(unsigned char key, int x, int y) {
 		blue = 1.0;
 		break;
 
-	case 'r':		//changes all the colors of the square to red
+	case '1':		//changes all the colors of the square to red
 		for (int i = 0; i < squares.size(); i++) {
 			squares[i].topleft.r = 1.0;
 			squares[i].topleft.g = 0.0;
@@ -337,7 +326,7 @@ void appKeyboardFunc(unsigned char key, int x, int y) {
 		}
 		break;
 
-	case 'g':		//changes all the colors of the square to red
+	case '2':		//changes all the colors of the square to red
 		for (int i = 0; i < squares.size(); i++) {
 			squares[i].topleft.r = 0.0;
 			squares[i].topleft.g = 1.0;
@@ -345,7 +334,7 @@ void appKeyboardFunc(unsigned char key, int x, int y) {
 		}
 		break;
 
-	case 'b':		//changes all the colors of the square to red
+	case '3':		//changes all the colors of the square to red
 		for (int i = 0; i < squares.size(); i++) {
 			squares[i].topleft.r = 0.0;
 			squares[i].topleft.g = 0.0;
