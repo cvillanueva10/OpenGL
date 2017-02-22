@@ -45,7 +45,7 @@ struct Point {
 	}
 };
 
-//A square data structure
+//A square data structure containing 4 point variables (corners) 
 struct Square {
 	//Origin of square, top left
 	Point topleft;
@@ -53,6 +53,7 @@ struct Square {
 	Point botleft;
 	Point botright;
 
+	//constructor for square
 	Square(Point topleft, Point topright, Point botleft, Point botright){
 		this->topleft = topleft;
 		this->topright = topright;
@@ -62,7 +63,7 @@ struct Square {
 
 };
 
-// A "Double Ended QUEue" to store points 
+// A "Double Ended QUEue" to store points and squares
 deque<Point> points;
 deque<Square> squares;
 
@@ -73,6 +74,7 @@ int width = 640, height = 640;
 
 //Default size of squares
 float length = (float)0.1;
+float change = (float)0.0;
 
 //-------------------------------------------------------
 // A function to draw the scene
@@ -117,25 +119,20 @@ void appDrawScene() {
 		glEnd();
 	}
 
-	//Draw all the square stored in the double-ended queue
+	//Draw all the square stored in the double-ended queue using line loop
 	for (int i = 0; i < squares.size(); i++) {
 		glColor3f(squares[i].topleft.r, squares[i].topleft.g, squares[i].topleft.b);
 
-		glBegin(GL_LINES);
+		glBegin(GL_LINE_LOOP);
 
 		glVertex2f(squares[i].topleft.x, squares[i].topleft.y);
-		glVertex2f(squares[i].topright.x + length, squares[i].topright.y);
-
-		glVertex2f(squares[i].topright.x + length, squares[i].topright.y);
-		glVertex2f(squares[i].botright.x + length, squares[i].botright.y - length);
-
-		glVertex2f(squares[i].botright.x + length, squares[i].botright.y - length);
-		glVertex2f(squares[i].botleft.x, squares[i].botleft.y - length);
-
-		glVertex2f(squares[i].botleft.x, squares[i].botleft.y - length);
-		glVertex2f(squares[i].topleft.x, squares[i].topleft.y);
+		glVertex2f(squares[i].topright.x + change, squares[i].topright.y);
+		glVertex2f(squares[i].botright.x + change, squares[i].botright.y - change);
+		glVertex2f(squares[i].botleft.x, squares[i].botleft.y - change);
 
 		glEnd();
+		
+	
 	}
 
 	// We have been drawing everything to the back buffer
@@ -259,6 +256,13 @@ void appMotionFunc(int x, int y) {
 	// allows us to paint free hand with the mouse.
 	//points.push_front(Point(mx, my, red, green, blue));
 
+	Point mtl = Point(mx, my, red, green, blue);
+	Point mtr = Point(mx + length, my, red, green, blue);
+	Point mbl = Point(mx, my - length, red, green, blue);
+	Point mbr = Point(mx + length, my - length, red, green, blue);
+
+	squares.push_front(Square(mtl, mtr, mbl, mbr));
+
 	// Again, we redraw the scene
 	glutPostRedisplay();
 }
@@ -277,6 +281,8 @@ void appKeyboardFunc(unsigned char key, int x, int y) {
 	case ' ':
 		points.clear();
 		squares.clear();
+		length = 0.1;
+		change = 0.0;
 		break;
 
 		// Escape was pressed. Quit the program
@@ -284,73 +290,79 @@ void appKeyboardFunc(unsigned char key, int x, int y) {
 		exit(0);
 		break;
 
-		// The "r" key was pressed. Set global color to red
-	/*case 'r':
-		red = 1.0;
-		green = 0.0;
-		blue = 0.0;
-		break;
-		// The "g" key was pressed. Set global color to green
-	case 'g':
-		red = 0.0;
-		green = 1.0;
-		blue = 0.0;
-		break;
-
-		// The "b" key was pressed. Set global color to blue
-	case 'b':
-		red = 0.0;
-		green = 0.0;
-		blue = 1.0;
-		break;
-		*/
 		// The "k" key was pressed. Set global color to black
 	case 'k':
+		for (int i = 0; i < squares.size(); i++) {
+			squares[i].topleft.r = 0.0;
+			squares[i].topleft.g = 0.0;
+			squares[i].topleft.b = 0.0;
+		}
 		red = 0.0;
 		green = 0.0;
 		blue = 0.0;
 		break;
 
-		// The "w" key was pressed. Set global color to white
+		// The "w" key was pressed. Set global color and all squares to white
 	case 'w':
+		for (int i = 0; i < squares.size(); i++) {
+			squares[i].topleft.r = 1.0;
+			squares[i].topleft.g = 1.0;
+			squares[i].topleft.b = 1.0;
+		}
 		red = 1.0;
 		green = 1.0;
 		blue = 1.0;
 		break;
 
-	case '1':		//changes all the colors of the square to red
+		// The "r" key was pressed. Set global color and all squares to red
+	case 'r':		
 		for (int i = 0; i < squares.size(); i++) {
 			squares[i].topleft.r = 1.0;
 			squares[i].topleft.g = 0.0;
 			squares[i].topleft.b = 0.0;
 		}
+		red = 1.0;
+		green = 0.0;
+		blue = 0.0;
 		break;
 
-	case '2':		//changes all the colors of the square to red
+		// The "g" key was pressed. Set global color and all squares to green
+	case 'g':		
 		for (int i = 0; i < squares.size(); i++) {
 			squares[i].topleft.r = 0.0;
 			squares[i].topleft.g = 1.0;
 			squares[i].topleft.b = 0.0;
 		}
+		red = 0.0;
+		green = 1.0;
+		blue = 0.0;
 		break;
 
-	case '3':		//changes all the colors of the square to red
+		// The "b" key was pressed. Set global color and all squares to red
+	case 'b':		
 		for (int i = 0; i < squares.size(); i++) {
 			squares[i].topleft.r = 0.0;
 			squares[i].topleft.g = 0.0;
 			squares[i].topleft.b = 1.0;
 		}
+		red = 0.0;
+		green = 0.0;
+		blue = 1.0;
 		break;
 
-	case 'i':		//increases size of squares
+		//The "i" key was pressed. Increase the size of all squares
+	case 'i':	
 		for (int i = 0; i < squares.size(); i++) {
-			length += 0.001;
+			change += 0.001;
 		}
 		break;
 
-	case 'd':		//increases size of squares
+		//The "d" key was pressed. Decrease the size of all squares
+	case 'd':		
 		for (int i = 0; i < squares.size(); i++) {
-			length -= 0.001;
+			if (change > -0.09) {
+				change -= 0.001;
+			}
 		}
 		break;
 
